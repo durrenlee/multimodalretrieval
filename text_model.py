@@ -85,6 +85,9 @@ class TextLSTMModel(torch.nn.Module):
 
   def forward(self, x):
     """ input x: list of strings"""
+    # print("TextLSTMModel x List:")
+    # print(len(x))
+    # print(x)
     if type(x) is list:
       if type(x[0]) is str or type(x[0]) is unicode:
         x = [self.vocab.encode_text(text) for text in x]
@@ -92,9 +95,15 @@ class TextLSTMModel(torch.nn.Module):
     assert type(x) is list
     assert type(x[0]) is list
     assert type(x[0][0]) is int
+    # print("TextLSTMModel x List 2:")
+    # print(len(x))
+    # 32
+    # print(x)
     return self.forward_encoded_texts(x)
 
   def forward_encoded_texts(self, texts):
+    # print("forward_encoded_texts texts:")
+    # print(texts)
     # to tensor
     lengths = [len(t) for t in texts]
     itexts = torch.zeros((np.max(lengths), len(texts))).long()
@@ -103,8 +112,13 @@ class TextLSTMModel(torch.nn.Module):
 
     # embed words
     itexts = torch.autograd.Variable(itexts).cuda()
+    # print("TextLSTMModel itexts shape:")
+    # print(itexts.shape)
+    # torch.Size([6, 32])
     etexts = self.embedding_layer(itexts)
-
+    # print("TextLSTMModel etexts shape:")
+    # print(etexts.shape)
+    # torch.Size([6, 32, 512])
     # lstm
     lstm_output, _ = self.forward_lstm_(etexts)
 
@@ -114,8 +128,15 @@ class TextLSTMModel(torch.nn.Module):
       text_features.append(lstm_output[lengths[i] - 1, i, :])
 
     # output
+    # print("TextLSTMModel text_features List2:")
+    # print(len(text_features))
+    # 32
+    # print(text_features)
     text_features = torch.stack(text_features)
     text_features = self.fc_output(text_features)
+    # print("TextLSTMModel text_features shape3:")
+    # print(text_features.shape)
+    # torch.Size([32, 512])
     return text_features
 
   def forward_lstm_(self, etexts):

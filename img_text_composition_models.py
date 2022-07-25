@@ -56,8 +56,23 @@ class ImgTextCompositionBase(torch.nn.Module):
                    modification_texts,
                    imgs_target,
                    soft_triplet_loss=True):
+    # print("ImgTextCompositionBase imgs_query shape:")
+    # print(imgs_query.shape)
+    # torch.Size([32, 3, 120, 180])
+    # print("imgs_query:")
+    # print(imgs_query)
+    # print("ImgTextCompositionBase modification_texts list:")
+    # print(len(modification_texts))
+    # 32
+    # print(modification_texts)
     mod_img1 = self.compose_img_text(imgs_query, modification_texts)
+    # print("ImgTextCompositionBase mod_img1 shape:")
+    # print(mod_img1.shape)
+    # torch.Size([32, 512])
     mod_img1 = self.normalization_layer(mod_img1)
+    # print("ImgTextCompositionBase mod_img1 shape 2:")
+    # print(mod_img1.shape)
+    # torch.Size([32, 512])
     img2 = self.extract_img_feature(imgs_target)
     img2 = self.normalization_layer(img2)
     assert (mod_img1.shape[0] == img2.shape[0] and
@@ -100,14 +115,20 @@ class ImgEncoderTextEncoderBase(ImgTextCompositionBase):
 
     # img model
     img_model = torchvision.models.resnet18(pretrained=True)
-
+    # print("ImgEncoderTextEncoderBase img_model:")
+    # print(img_model)
     class GlobalAvgPool2d(torch.nn.Module):
 
       def forward(self, x):
+        # print("GlobalAvgPool2d x shape:")
+        # print(x.shape)
+        # torch.Size([32, 512, 4, 6])
         return F.adaptive_avg_pool2d(x, (1, 1))
 
     img_model.avgpool = GlobalAvgPool2d()
     img_model.fc = torch.nn.Sequential(torch.nn.Linear(512, embed_dim))
+    # print("ImgEncoderTextEncoderBase img_model 2:")
+    # print(img_model)
     self.img_model = img_model
 
     # text model
@@ -120,6 +141,10 @@ class ImgEncoderTextEncoderBase(ImgTextCompositionBase):
     return self.img_model(imgs)
 
   def extract_text_feature(self, texts):
+    # print("ImgEncoderTextEncoderBase texts list:")
+    # print(len(texts))
+    # 32
+    # print(texts)
     return self.text_model(texts)
 
 
@@ -154,8 +179,14 @@ class Concat(ImgEncoderTextEncoderBase):
             torch.nn.Dropout(0.1), torch.nn.Linear(2 * embed_dim, embed_dim))
 
       def forward(self, x):
+        print("Composer x shape:")
+        print(x.shape)
         f = torch.cat(x, dim=1)
+        print("Composer f shape:")
+        print(f.shape)
         f = self.m(f)
+        print("Composer f shape2:")
+        print(f.shape)
         return f
 
     self.composer = Composer()
@@ -166,6 +197,10 @@ class Concat(ImgEncoderTextEncoderBase):
     return self.compose_img_text_features(img_features, text_features)
 
   def compose_img_text_features(self, img_features, text_features):
+    print("Concat img_features shape:")
+    print(img_features.shape)
+    print("Concat text_features shape:")
+    print(text_features.shape)
     return self.composer((img_features, text_features))
 
 

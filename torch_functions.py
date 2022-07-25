@@ -125,6 +125,9 @@ class TripletLoss(torch.nn.Module):
     if self.pre_layer is not None:
       x = self.pre_layer(x)
     # loss = MyTripletLossFunc(triplets)(x)
+    # print("TripletLoss x shape:")
+    # print(x.shape)
+    # torch.Size([64, 512])
     loss = MyTripletLossFunc.apply(x, triplets)
     return loss
 
@@ -138,5 +141,8 @@ class NormalizationLayer(torch.nn.Module):
       self.norm_s = torch.nn.Parameter(torch.FloatTensor((self.norm_s,)))
 
   def forward(self, x):
+    # print("NormalizationLayer x shape:")
+    # print(x.shape)
+    # torch.Size([32, 512])
     features = self.norm_s * x / torch.norm(x, dim=1, keepdim=True).expand_as(x)
     return features
