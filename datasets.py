@@ -188,10 +188,16 @@ class CSSDataset(BaseDataset):
     if self.img_path is None or get_2d:
       img = generate_2d_image(self.imgs[idx]['objects'])
     else:
-      img_path = self.img_path + ('/css_%s_%06d.png' % (self.split, int(idx)))
+      # img_path = self.img_path + ('/css_%s_%06d.png' % (self.split, int(idx)))
+      img_path = self.img_path + ('css_%s_%06d.png' % (self.split, int(idx)))
+      # ../input/cssdataset/images/css_train_000871.png
       with open(img_path, 'rb') as f:
         img = PIL.Image.open(f)
+        # print(img)
+        # <PIL.PngImagePlugin.PngImageFile image mode=RGBA size=180x120 at 0x7F466CAF0610>
         img = img.convert('RGB')
+        # print(img)
+        # <PIL.Image.Image image mode=RGB size=180x120 at 0x7F466CAF0C50>
 
     if raw_img:
       return img
